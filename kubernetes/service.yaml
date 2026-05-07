@@ -1,0 +1,20 @@
+
+# Service for crow Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: crow-backend
+  namespace: crow
+  labels:
+    app.kubernetes.io/name: crow
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: crow
+    app.kubernetes.io/component: backend

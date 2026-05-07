@@ -1,0 +1,9 @@
+
+# Kubernetes Namespace for crow
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crow
+  labels:
+    app.kubernetes.io/name: crow
+    app.kubernetes.io/managed-by: kubectl

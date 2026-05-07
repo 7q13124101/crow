@@ -1,0 +1,33 @@
+
+# ConfigMap for crow
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crow-config
+  namespace: crow
+  labels:
+    app.kubernetes.io/name: crow
+    app.kubernetes.io/component: backend
+data:
+  # Application settings
+  ENVIRONMENT: "production"
+  DEBUG: "false"
+  PROJECT_NAME: "crow"
+  API_V1_STR: "/api/v1"
+  TIMEZONE: "UTC"
+  # PostgreSQL settings
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "crow"
+  # Redis settings
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  # Celery settings
+  CELERY_BROKER_URL: "redis://redis-service:6379/0"
+  CELERY_RESULT_BACKEND: "redis://redis-service:6379/0"
+  # Logfire settings
+  LOGFIRE_SERVICE_NAME: "crow"
+  LOGFIRE_ENVIRONMENT: "production"
+  # CORS settings (adjust for your domain)
+  CORS_ORIGINS: '["https://crow.example.com"]'
