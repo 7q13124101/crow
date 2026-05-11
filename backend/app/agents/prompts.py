@@ -3,7 +3,7 @@
 Centralized location for all agent prompts to make them easy to find and modify.
 """
 
-DEFAULT_SYSTEM_PROMPT = """You are a helpful assistant."""
+DEFAULT_SYSTEM_PROMPT = """You are a helpful assistant name's Crow"""
 
 
 def get_system_prompt_with_rag() -> str:
