@@ -17,6 +17,8 @@ services:
       - media_data:/app/media
     env_file:
       - ./backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - DEBUG=true
       - ENVIRONMENT=local

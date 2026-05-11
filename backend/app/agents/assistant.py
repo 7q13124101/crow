@@ -16,7 +16,10 @@ from pydantic_ai.messages import (
     TextPart,
     UserPromptPart,
 )
+from pydantic_ai.models.gemini import GeminiModel
+from pydantic_ai.models.ollama import OllamaModel
 from pydantic_ai.models.openai import OpenAIResponsesModel
+from pydantic_ai.providers.ollama import OllamaProvider
 from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai.settings import ModelSettings
 
@@ -58,10 +61,18 @@ class AssistantAgent:
 
     def _create_agent(self) -> Agent[Deps, str]:
         """Create and configure the PydanticAI agent."""
-        model = OpenAIResponsesModel(
-            self.model_name,
-            provider=OpenAIProvider(api_key=settings.OPENAI_API_KEY),
-        )
+        if settings.LLM_PROVIDER == "gemini":
+            model = GeminiModel(self.model_name, api_key=settings.GEMINI_API_KEY)
+        elif settings.LLM_PROVIDER == "ollama":
+            model = OllamaModel(
+                self.model_name,
+                provider=OllamaProvider(base_url=f"{settings.OLLAMA_BASE_URL}/v1"),
+            )
+        else:
+            model = OpenAIResponsesModel(
+                self.model_name,
+                provider=OpenAIProvider(api_key=settings.OPENAI_API_KEY),
+            )
 
         agent = Agent[Deps, str](
             model=model,

@@ -142,7 +142,7 @@ jobs:
         run: uv sync --directory backend --dev
 
       - name: Install pip-audit
-        run: uv pip install pip-audit
+        run: uv pip install pip-audit --system
 
       - name: Run pip-audit
         run: uv run pip-audit --require-hashes=false --progress-spinner=off

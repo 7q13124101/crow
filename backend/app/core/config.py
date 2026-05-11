@@ -56,7 +56,7 @@ class Settings(BaseSettings):
         return (
             f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-        )
+        ) #output: postgresql+asyncpg://postgres:@localhost:5432/crow
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -68,7 +68,7 @@ class Settings(BaseSettings):
         )
 
     # Pool configuration
-    DB_POOL_SIZE: int = 5
+    DB_POOL_SIZE: int = 20
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_TIMEOUT: int = 30
 
@@ -142,26 +142,17 @@ class Settings(BaseSettings):
 
     # === AI Agent (pydantic_ai, openai) ===
     OPENAI_API_KEY: str = ""
-    AI_MODEL: str = "gpt-5-mini"
+    GEMINI_API_KEY: str | None = None
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    AI_MODEL: str = "qwen3:8b"
     AI_TEMPERATURE: float = 0.7
     AI_AVAILABLE_MODELS: list[str] = [
-        "gpt-5.4",
-        "gpt-5.4-mini",
-        "gpt-5.4-nano",
-        "gpt-5-mini",
-        "gpt-5-nano",
-        "gpt-5",
-        "gpt-5.1",
-        "gpt-5.2",
-        "o4-mini",
-        "o3",
-        "o3-mini",
-        "gpt-4.1-mini",
-        "gpt-4.1",
-        "gpt-4.1-nano",
-        "gpt-4o",
-        "gpt-4o-mini",
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+        "qwen2",
+        "qwen3:8b"
     ]
+
     AI_FRAMEWORK: str = "pydantic_ai"
     LLM_PROVIDER: str = "openai"
 
