@@ -1,0 +1,60 @@
+✦ Dưới đây là bảng tổng hợp cấu trúc cơ sở dữ liệu hiện tại của hệ thống, dựa trên các model đã được định nghĩa:
+
+  1. Bảng users (Quản lý người dùng)
+   * Các cột chính:
+       * id (UUID, PK): Khóa chính.
+       * email: Email duy nhất, dùng để đăng nhập.
+       * hashed_password: Mật khẩu đã mã hóa.
+       * full_name: Tên đầy đủ.
+       * role: Quyền hạn (admin hoặc user).
+       * is_active: Trạng thái kích hoạt.
+       * created_at, updated_at: Thời gian tạo/cập nhật.
+
+  2. Bảng conversations (Phiên chat)
+   * Các cột chính:
+       * id (UUID, PK): Khóa chính.
+       * user_id (FK): Liên kết tới bảng users.
+       * title: Tiêu đề cuộc hội thoại.
+       * is_archived: Đã lưu trữ hay chưa.
+   * Quan hệ: Một cuộc hội thoại chứa nhiều messages.
+
+  3. Bảng messages (Chi tiết tin nhắn)
+   * Các cột chính:
+       * id (UUID, PK): Khóa chính.
+       * conversation_id (FK): Thuộc cuộc hội thoại nào.
+       * role: Vai trò (user, assistant, hoặc system).
+       * content: Nội dung tin nhắn (Text).
+       * model_name: Tên model AI đã sử dụng.
+       * tokens_used: Số lượng token tiêu tốn.
+   * Quan hệ: Liên kết với tool_calls, chat_files, và message_ratings.
+  4. Bảng tool_calls (Lịch sử gọi tool của AI)
+   * Các cột chính:
+       * id (UUID, PK).
+       * message_id (FK): Tin nhắn assistant nào đã kích hoạt tool này.
+       * tool_name: Tên công cụ (ví dụ: search, calculator...).
+       * args (JSONB): Tham số truyền vào tool.
+       * result: Kết quả tool trả về.
+       * status: Trạng thái (pending, running, completed, failed).
+
+  5. Bảng chat_files (File đính kèm)
+   * Các cột chính:
+       * id, user_id (FK), message_id (FK).
+       * filename, mime_type, size.
+       * storage_path: Đường dẫn vật lý của file trên server/cloud.
+       * parsed_content: Nội dung văn bản đã được trích xuất từ file (để AI đọc).
+
+  6. Bảng message_ratings (Đánh giá từ người dùng)
+   * Các cột chính:
+       * message_id (FK), user_id (FK).
+       * rating: Điểm số (1 cho Like, -1 cho Dislike).
+       * comment: Ý kiến đóng góp thêm.
+   * Ràng buộc: Một user chỉ được đánh giá một message một lần (UniqueConstraint).
+
+  7. Bảng conversation_shares (Chia sẻ cuộc chat)
+   * Các cột chính:
+       * conversation_id (FK), shared_by (FK), shared_with (FK).
+       * share_token: Token để truy cập qua link.
+       * permission: Quyền hạn (view hoặc edit).
+
+  Lưu ý: Dự án sử dụng PostgreSQL (thể hiện qua các kiểu dữ liệu JSONB, UUID) và Alembic để quản lý các phiên bản thay đổi (migrations).
+  Các file như channel_bot.py hay sync_source.py hiện tại mới chỉ là placeholder (chưa có nội dung thực sự).

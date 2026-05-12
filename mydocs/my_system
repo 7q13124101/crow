@@ -1,0 +1,105 @@
+# Tài liệu Phân tích và Thiết kế Hệ thống Crow
+
+Tài liệu này tổng hợp toàn bộ thông tin về kiến trúc, công nghệ, chức năng và cách thức hoạt động của hệ thống Crow. Đây là cơ sở để hiểu rõ hệ thống hiện tại, phục vụ cho việc bảo trì, điều chỉnh hoặc phát triển hệ thống mới dựa trên các khuôn mẫu có sẵn.
+
+---
+
+## 1. Tổng quan hệ thống (System Overview)
+
+**Crow** là một nền tảng AI Agent hiện đại, được thiết kế theo mô hình full-stack với khả năng tương tác ngôn ngữ tự nhiên, xử lý tài liệu và hỗ trợ đa kênh. Hệ thống tận dụng các công nghệ mới nhất như FastAPI cho backend và Next.js cho frontend để đảm bảo hiệu suất cao và trải nghiệm người dùng mượt mà.
+
+- **Mục tiêu:** Cung cấp một bộ khung (framework) mạnh mẽ để xây dựng các trợ lý AI có khả năng sử dụng công cụ (tool use), truy cập web và xử lý dữ liệu doanh nghiệp.
+- **Khả năng cốt lõi:** Hội thoại AI, trích xuất dữ liệu từ file (PDF, Docx, Image), quản trị hệ thống, và tích hợp các kênh bên thứ ba (Slack, Telegram).
+
+---
+
+## 2. Kiến trúc hệ thống (Architecture)
+
+Hệ thống tuân thủ kiến trúc phân lớp **Repository + Service**, giúp tách biệt rõ ràng giữa logic nghiệp vụ và truy xuất dữ liệu.
+
+### 2.1. Các lớp kiến trúc (Backend Layers)
+- **API Routes (`app/api/v1/`):** Tiếp nhận các yêu cầu HTTP, kiểm tra quyền truy cập (Auth) và validate dữ liệu đầu vào bằng Pydantic. Không chứa logic nghiệp vụ hay truy vấn DB trực tiếp.
+- **Services (`app/services/`):** Chứa logic nghiệp vụ chính (Business Logic). Điều phối các repositories, thực hiện các tính toán và quản lý các giao dịch (transactions).
+- **Repositories (`app/repositories/`):** Chịu trách nhiệm tương tác trực tiếp với cơ sở dữ liệu. Thực hiện các truy vấn SQL thông qua SQLAlchemy.
+- **Models (`app/db/models/`):** Định nghĩa cấu trúc các bảng trong Database (SQLAlchemy ORM).
+- **Schemas (`app/schemas/`):** Định nghĩa cấu trúc dữ liệu cho Request và Response (Pydantic models).
+
+### 2.2. Luồng xử lý yêu cầu (Request Flow)
+1. **Client** gửi yêu cầu đến **API Endpoint**.
+2. **Endpoint** gọi **Service** tương ứng.
+3. **Service** gọi một hoặc nhiều **Repository** để lấy/ghi dữ liệu.
+4. **Repository** thực thi truy vấn trên **Database**.
+5. Kết quả được trả ngược lại theo các lớp và chuyển đổi thành **Response Schema** để trả về cho Client.
+
+---
+
+## 3. Công nghệ sử dụng (Technology Stack)
+
+### 3.1. Backend
+- **Ngôn ngữ:** Python 3.12+
+- **Framework:** **FastAPI** (hiệu suất cao, hỗ trợ async).
+- **ORM:** **SQLAlchemy** (async) với **Alembic** để quản lý migration.
+- **Xác thực:** **JWT** (JSON Web Token) và **API Key**.
+- **AI Framework:** **Pydantic-AI** (hỗ trợ OpenAI, Gemini, Ollama).
+- **Background Tasks:** **Celery** với **Redis** làm message broker.
+- **Logging & Observability:** **Logfire**, **Sentry**, **Prometheus**.
+
+### 3.2. Frontend
+- **Framework:** **Next.js 15** (App Router) & **React 19**.
+- **Styling:** **Tailwind CSS v4**.
+- **State Management:** **Zustand** và **TanStack Query** (v5).
+- **UI Components:** **Radix UI**, **Lucide React**, **Sonner** (notifications).
+- **I18n:** **next-intl** (hỗ trợ đa ngôn ngữ).
+
+---
+
+## 4. Các chức năng chính (Main Features)
+
+### 4.1. Trợ lý AI (AI Assistant)
+- Tích hợp nhiều mô hình ngôn ngữ lớn (LLM) qua `pydantic-ai`.
+- Khả năng **Tool Use**: Agent có thể gọi các hàm Python để thực hiện tác vụ (ví dụ: lấy thời gian, tìm kiếm web).
+- **Web Search & Fetch**: Agent có khả năng tìm kiếm thông tin từ Internet và đọc nội dung trang web.
+
+### 4.2. Quản lý hội thoại & Tệp tin
+- Lưu trữ lịch sử chat theo từng người dùng.
+- Hỗ trợ tải lên và xử lý các loại tệp:
+    - **PDF**: Trích xuất văn bản bằng PyMuPDF.
+    - **Docx**: Sử dụng python-docx.
+    - **Images**: Gửi trực tiếp đến LLM hỗ trợ Vision.
+    - **Text/Markdown**: Đọc trực tiếp nội dung văn bản.
+
+### 4.3. Hệ thống đánh giá (Message Ratings)
+- Cho phép người dùng đánh giá phản hồi của AI (Like/Dislike).
+- Để lại phản hồi chi tiết (comments).
+- Admin có bảng điều khiển (Dashboard) để phân tích chất lượng AI.
+
+### 4.4. Bảo mật & Phân quyền (RBAC)
+- Phân chia vai trò rõ ràng: `ADMIN` và `USER`.
+- Bảo vệ tài nguyên theo quyền sở hữu (IDOR Protection).
+
+---
+
+## 5. Luồng hoạt động chi tiết (Operational Flow)
+
+### 5.1. Quy trình xử lý tệp (File Processing Pipeline)
+1. **Upload**: Validate định dạng và dung lượng.
+2. **Classify**: Phân loại loại tệp (ảnh, pdf, văn bản).
+3. **Parse**: Trích xuất nội dung văn bản.
+4. **Store**: Lưu tệp vào thư mục `media/{user_id}/`.
+5. **Record**: Lưu thông tin vào DB.
+
+### 5.2. Luồng chạy của AI Agent
+- Hệ thống khởi tạo `AssistantAgent` với cấu hình từ `.env`.
+- Khi người dùng gửi tin nhắn, lịch sử hội thoại được nén và gửi kèm theo prompt.
+- Agent quyết định sử dụng các công cụ (tools) nếu cần thiết.
+
+---
+
+## 6. Hướng dẫn mở rộng hệ thống
+
+- **Thêm API mới:** Tạo Model -> Migration -> Repository -> Service -> Route.
+- **Thêm Tool cho Agent:** Định nghĩa hàm trong `app/agents/tools/` và đăng ký với Agent trong `app/agents/assistant.py`.
+- **Tích hợp kênh mới:** Kế thừa từ `BaseChannel` trong `app/channels/base.py`.
+
+---
+*Tài liệu này được cập nhật vào ngày 12/05/2026.*
